@@ -1,0 +1,148 @@
+= Puppet module: apt
+
+This is a Puppet module for apt based on the second generation layout ("NextGen") of Example42 Puppet Modules.
+
+Made by Romain THERRAT / Carpe-Hora
+
+Official site: http://www.example42.com
+
+Official git repository: http://github.com/lermit/puppet-apt
+
+Released under the terms of Apache 2 License.
+
+This module requires functions provided by the Example42 Puppi module (you need it even if you don't use and install Puppi)
+
+For detailed info about the logic and usage patterns of Example42 modules check the DOCS directory on Example42 main modules set.
+
+== USAGE - Basic management
+
+* Install apt with default settings
+
+        class { 'apt': }
+
+* Install a specific version of apt package
+
+        class { 'apt':
+          version => '1.0.1',
+        }
+
+* Remove apt package
+
+        class { 'apt':
+          absent => true
+        }
+
+* Enable auditing without without making changes on existing apt configuration files
+
+        class { 'apt':
+          audit_only => true
+        }
+
+== USAGE - Repository management
+
+* Add a repository
+
+        apt::repository { "ubuntu":
+          url        => "http://it.archive.ubuntu.com/ubuntu/",
+          distro     => 'lucid',
+          repository => 'main restricted',
+        }
+
+This will generate somethink like 'deb http://it.archive.ubuntu.com/ubuntu/ lucid main restricted' into /etc/apt/source.list.d/ubuntu.list
+
+* Add a source repository 
+
+        apt::repository { "ubuntu-src":
+          url        => "http://it.archive.ubuntu.com/ubuntu/",
+          distro     => 'lucid',
+          repository => 'main restricted',
+          source     => true,
+        }
+
+This will generate somethink like 'deb-src http://it.archive.ubuntu.com/ubuntu/ lucid main restricted' into /etc/apt/source.list.d/ubuntu-src.list
+
+* Remove a repository
+
+        apt::repository { "ubuntu":
+          ensure     => absent,
+          url        => "http://it.archive.ubuntu.com/ubuntu/",
+          distro     => 'lucid',
+          repository => 'main restricted',
+        }
+
+
+== USAGE - Apt update
+
+* Notify an apt database update
+
+        ...
+        notify => Exec['apt_update'],
+        ...
+
+* Require a repository installation and update
+
+        ...
+        require => [
+          Apt::Repository['Ubuntu'],
+          Exec['apt_update'],
+        ],
+        ...
+
+== USAGE - Overrides and Customizations
+* Use custom sources for main config file
+
+        class { 'apt':
+          source => [ "puppet:///modules/lab42/apt/apt.conf-${hostname}" , "puppet:///modules/lab42/apt/apt.conf" ],
+        }
+
+
+* Use custom source directory for the whole configuration dir
+
+        class { 'apt':
+          source_dir       => 'puppet:///modules/lab42/apt/conf/',
+          source_dir_purge => false, # Set to true to purge any existing file not present in $source_dir
+        }
+
+* Use custom template for main config file. Note that template and source arguments are alternative.
+
+        class { 'apt':
+          template => 'example42/apt/apt.conf.erb',
+        }
+
+* Automatically include a custom subclass
+
+        class { 'apt':
+          my_class => 'apt::example42',
+        }
+
+
+== USAGE - Example42 extensions management
+* Activate puppi (recommended, but disabled by default)
+
+        class { 'apt':
+          puppi    => true,
+        }
+
+* Activate puppi and use a custom puppi_helper template (to be provided separately with a puppi::helper define ) to customize the output of puppi commands
+
+        class { 'apt':
+          puppi        => true,
+          puppi_helper => 'myhelper',
+        }
+
+* Activate automatic monitoring (recommended, but disabled by default). This option requires the usage of Example42 monitor and relevant monitor tools modules
+
+        class { 'apt':
+          monitor      => true,
+          monitor_tool => [ 'nagios' , 'monit' , 'munin' ],
+        }
+
+* Activate automatic firewalling. This option requires the usage of Example42 firewall and relevant firewall tools modules
+
+        class { 'apt':
+          firewall      => true,
+          firewall_tool => 'iptables',
+          firewall_src  => '10.42.0.0/24',
+          firewall_dst  => $ipaddress_eth0,
+        }
+
