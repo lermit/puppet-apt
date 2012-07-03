@@ -122,21 +122,25 @@
 #   Do "apt-get upgrade --download-only" every n-days (0=disable)
 #
 # [*update_periodic_upgrade*]
-#   Run the "unattended-upgrade" security upgrade script every n-days (0=disabled)
+#   Run the "unattended-upgrade" security upgrade script every n-days
+#   (0=disabled)
 #
 # [*update_periodic_clean*]
 #   Do "apt-get autoclean" every n-days (0=disable)
 #
 # [*update_template*]
-#   Sets the path to the template to use as content for unattended upgrade 
+#   Sets the path to the template to use as content for unattended upgrade
 #   configuration file
-#   If defined, unattended upgrade main config file has: content => content("$template")
-#   Note update_source and update_template parameters are mutually exclusive: don't use both
+#   If defined, unattended upgrade main config file has:
+#   content => content("$template")
+#   Note update_source and update_template parameters are mutually exclusive:
+#   don't use both
 #   Can be defined also by the (top scope) variable $apt_update_template
 #
 # [*update_source*]
-#   Sets the content of source parameter for unattended upgrade configuration file
-#   If defined, unattended upgrade config file will have the param: 
+#   Sets the content of source parameter for unattended upgrade configuration
+#   file
+#   If defined, unattended upgrade config file will have the param:
 #   source => $source
 #   Can be defined also by the (top scope) variable $apt_update_source
 #
@@ -256,7 +260,7 @@ class apt (
   }
 
   exec { 'apt_update':
-    command     => "/usr/bin/apt-get -qq update",
+    command     => '/usr/bin/apt-get -qq update',
     logoutput   => false,
     refreshonly => true,
     subscribe   => [File[$apt::config_file], File[$apt::config_dir]],

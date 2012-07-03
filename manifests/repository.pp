@@ -38,10 +38,10 @@
 #   deb-src http://it.archive.ubuntu.com/ubuntu/ lucid main restricted
 #
 define apt::repository (
-    $ensure = present,
     $url,
     $distro,
     $repository,
+    $ensure = present,
     $key='',
     $key_url='',
     $source=false) {
@@ -54,10 +54,10 @@ define apt::repository (
         mode    => "${apt::config_file_mode}",
         owner   => "${apt::config_file_owner}",
         group   => "${apt::config_file_group}",
-        require => File["apt.dir"],
+        require => File['apt.dir'],
         ensure  => $ensure,
-        content => template("apt/repository.list.erb"),
-        notify  => Exec["apt_update"],
+        content => template('apt/repository.list.erb'),
+        notify  => Exec['apt_update'],
     }
     if $key {
       case $key_url {
