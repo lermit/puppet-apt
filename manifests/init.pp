@@ -109,6 +109,36 @@
 # [*log_file*]
 #   Log file(s). Used by puppi
 #
+# [*update_present*]
+#   True if you want auto update. Auto update is manage by unattended-update.
+#
+# [*update_version*]
+#   Version of unattended-update you want.
+#
+# [*update_periodic_update*]
+#   Do "apt-get update" automatically every n-days (0=disable)
+#
+# [*update_periodic_download*]
+#   Do "apt-get upgrade --download-only" every n-days (0=disable)
+#
+# [*update_periodic_upgrade*]
+#   Run the "unattended-upgrade" security upgrade script every n-days (0=disabled)
+#
+# [*update_periodic_clean*]
+#   Do "apt-get autoclean" every n-days (0=disable)
+#
+# [*update_template*]
+#   Sets the path to the template to use as content for unattended upgrade 
+#   configuration file
+#   If defined, unattended upgrade main config file has: content => content("$template")
+#   Note update_source and update_template parameters are mutually exclusive: don't use both
+#   Can be defined also by the (top scope) variable $apt_update_template
+#
+# [*update_source*]
+#   Sets the content of source parameter for unattended upgrade configuration file
+#   If defined, unattended upgrade config file will have the param: 
+#   source => $source
+#   Can be defined also by the (top scope) variable $apt_update_source
 #
 # == Examples
 #
@@ -123,32 +153,41 @@
 #   Romain THERRAT <romain42@gmail.com/>
 #
 class apt (
-  $my_class            = params_lookup( 'my_class' ),
-  $source              = params_lookup( 'source' ),
-  $source_dir          = params_lookup( 'source_dir' ),
-  $source_dir_purge    = params_lookup( 'source_dir_purge' ),
-  $template            = params_lookup( 'template' ),
-  $options             = params_lookup( 'options' ),
-  $version             = params_lookup( 'version' ),
-  $absent              = params_lookup( 'absent' ),
-  $puppi               = params_lookup( 'puppi' , 'global' ),
-  $puppi_helper        = params_lookup( 'puppi_helper' , 'global' ),
-  $debug               = params_lookup( 'debug' , 'global' ),
-  $audit_only          = params_lookup( 'audit_only' , 'global' ),
-  $package             = params_lookup( 'package' ),
-  $config_dir          = params_lookup( 'config_dir' ),
-  $config_file         = params_lookup( 'config_file' ),
-  $config_file_mode    = params_lookup( 'config_file_mode' ),
-  $config_file_owner   = params_lookup( 'config_file_owner' ),
-  $config_file_group   = params_lookup( 'config_file_group' ),
-  $config_file_init    = params_lookup( 'config_file_init' ),
-  $data_dir            = params_lookup( 'data_dir' ),
-  $log_dir             = params_lookup( 'log_dir' ),
-  $log_file            = params_lookup( 'log_file' )
+  $my_class                 = params_lookup( 'my_class' ),
+  $source                   = params_lookup( 'source' ),
+  $source_dir               = params_lookup( 'source_dir' ),
+  $source_dir_purge         = params_lookup( 'source_dir_purge' ),
+  $template                 = params_lookup( 'template' ),
+  $options                  = params_lookup( 'options' ),
+  $version                  = params_lookup( 'version' ),
+  $absent                   = params_lookup( 'absent' ),
+  $puppi                    = params_lookup( 'puppi' , 'global' ),
+  $puppi_helper             = params_lookup( 'puppi_helper' , 'global' ),
+  $debug                    = params_lookup( 'debug' , 'global' ),
+  $audit_only               = params_lookup( 'audit_only' , 'global' ),
+  $package                  = params_lookup( 'package' ),
+  $config_dir               = params_lookup( 'config_dir' ),
+  $config_file              = params_lookup( 'config_file' ),
+  $config_file_mode         = params_lookup( 'config_file_mode' ),
+  $config_file_owner        = params_lookup( 'config_file_owner' ),
+  $config_file_group        = params_lookup( 'config_file_group' ),
+  $config_file_init         = params_lookup( 'config_file_init' ),
+  $data_dir                 = params_lookup( 'data_dir' ),
+  $log_dir                  = params_lookup( 'log_dir' ),
+  $log_file                 = params_lookup( 'log_file' ),
+  $update_present           = params_lookup( 'update_present' ),
+  $update_version           = params_lookup( 'update_version' ),
+  $update_periodic_update   = params_lookup( 'update_periodic_update' ),
+  $update_periodic_download = params_lookup( 'update_periodic_download' ),
+  $update_periodic_upgrade  = params_lookup( 'update_periodic_upgrade' ),
+  $update_periodic_clean    = params_lookup( 'update_periodic_clean' ),
+  $update_template          = params_lookup( 'update_template' ),
+  $update_source            = params_lookup( 'update_source' ),
   ) inherits apt::params {
 
   $bool_source_dir_purge=any2bool($source_dir_purge)
   $bool_absent=any2bool($absent)
+  $bool_update_present=any2bool($update_present)
   $bool_puppi=any2bool($puppi)
   $bool_debug=any2bool($debug)
   $bool_audit_only=any2bool($audit_only)
@@ -184,10 +223,36 @@ class apt (
     default   => template($apt::template),
   }
 
+  ### Unattended update
+  $update_manage_package = $apt::bool_update_present ? {
+    true  => $apt::update_version,
+    false => 'absent',
+  }
+
+  $update_manage_file = $apt::bool_update_present ? {
+    true  => 'present',
+    false => 'absent',
+  }
+
+  $update_manage_file_source = $apt::update_source ? {
+    ''      => undef,
+    default => $apt::update_source,
+  }
+
+  $update_manage_file_content = $apt::update_template ? {
+    ''      => undef,
+    default => template($apt::update_template),
+  }
+
   ### Managed resources
   package { 'apt':
     ensure => $apt::manage_package,
     name   => $apt::package,
+  }
+
+  package { 'apt-update':
+    ensure => $apt::update_manage_package,
+    name   => $apt::update_package,
   }
 
   exec { 'apt_update':
@@ -207,6 +272,19 @@ class apt (
     notify  => Exec['apt_update'],
     source  => $apt::manage_file_source,
     content => $apt::manage_file_content,
+    replace => $apt::manage_file_replace,
+    audit   => $apt::manage_audit,
+  }
+
+  file { 'apt-update.conf':
+    ensure  => $apt::update_manage_file,
+    path    => $apt::update_config_file,
+    mode    => $apt::config_file_mode,
+    owner   => $apt::config_file_owner,
+    group   => $apt::config_file_group,
+    require => Package['apt-update'],
+    source  => $apt::update_manage_file_source,
+    content => $apt::update_manage_file_content,
     replace => $apt::manage_file_replace,
     audit   => $apt::manage_audit,
   }

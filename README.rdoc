@@ -50,7 +50,7 @@ For detailed info about the logic and usage patterns of Example42 modules check 
 
 This will generate somethink like 'deb http://it.archive.ubuntu.com/ubuntu/ lucid main restricted' into /etc/apt/source.list.d/ubuntu.list
 
-* Add a source repository 
+* Add a source repository
 
         apt::repository { "ubuntu-src":
           url        => "http://it.archive.ubuntu.com/ubuntu/",
@@ -70,6 +70,35 @@ This will generate somethink like 'deb-src http://it.archive.ubuntu.com/ubuntu/ 
           repository => 'main restricted',
         }
 
+== USAGE - Automatic update
+
+* Automaticaly update and install package
+
+        class { "apt":
+          update_present => true,
+        }
+
+* Set task recurrence. Here we want to proceed a apt-get update each day, download package each day, upgrade each 2 days and apt-get autoclean each 4 days. 
+
+        class { "apt":
+          update_present           => true,
+          update_periodic_update   => 1,
+          update_periodic_download => 1,
+          update_periodic_upgrade  => 2,
+          update_periodic_clean    => 4,
+        }
+
+* Specify own template.
+
+        ...
+        update_template => 'example42/apt-update.cfg',
+        ...
+
+* Specify own source.
+
+        ...
+        update_source => [ "puppet:///modules/example42/apt/update.cfg-${hostname}" , "puppet:///modules/example42/apt/update.cfg"],
+        ...
 
 == USAGE - Apt update
 

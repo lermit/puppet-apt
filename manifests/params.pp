@@ -14,6 +14,23 @@
 #
 class apt::params {
 
+  ### Unattended Upgrade related parameters
+  $update_version = 'present'
+  # Proceed each n-day
+  $update_periodic_update = 1
+  $update_periodic_download = 1
+  $update_periodic_upgrade = 1
+  $update_periodic_clean = 7
+  $update_template = 'apt/02periodic.erb'
+  $update_source = ''
+
+  $update_package = $::operatingsystem ? {
+    default => 'unattended-upgrades',
+  }
+  $update_config_file = $::operatingsystem ? {
+    default => '/etc/apt/apt.conf.d/02periodic',
+  }
+
   ### Application related parameters
 
   $package = $::operatingsystem ? {
@@ -60,11 +77,12 @@ class apt::params {
   $my_class = ''
   $source = ''
   $source_dir = ''
-  $source_dir_purge = 'false'
+  $source_dir_purge = false
   $template = ''
   $options = ''
   $version = 'present'
   $absent = false
+  $update_present = false
 
   ### General module variables that can have a site or per module default
   $puppi = false
