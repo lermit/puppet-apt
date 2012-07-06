@@ -264,7 +264,7 @@ class apt (
     default => $apt::update_source,
   }
 
-  $update_manage_content = $apt::update_source ? {
+  $update_manage_content = $apt::update_template? {
     ''      => undef,
     default => template($apt::update_template),
   }
@@ -280,7 +280,7 @@ class apt (
     default => $apt::proxy_source,
   }
 
-  $proxy_manage_file_content = $apt::proxy_source ? {
+  $proxy_manage_file_content = $apt::proxy_template ? {
     ''      => undef,
     default => template($apt::proxy_template),
   }
