@@ -5,6 +5,23 @@
 #
 # == Parameters
 #
+# Specific class parameters
+#
+# [*proxy*]
+#   If you want your client to use a APT proxy set this to the URL of
+#   the APT Proxy (like 'http://apt-cache02.example.com:3142")
+#
+# [*proxy_config_file*]
+#   File where configuration will be stored
+#   (default /etc/apt/apt.conf.d/02proxy)
+#
+# [*proxy_template*]
+#   If you want to overide defaut template set this one here
+#
+# [*proxy_source*]
+#   Sets the content of source parameter for proxy configuration file
+#   If defined, apt proxy config file will heve the param source => $source
+#
 # Standard class parameters
 # Define the general class behaviour and customizations
 #
@@ -187,6 +204,10 @@ class apt (
   $update_periodic_clean    = params_lookup( 'update_periodic_clean' ),
   $update_template          = params_lookup( 'update_template' ),
   $update_source            = params_lookup( 'update_source' ),
+  $proxy                    = params_lookup( 'proxy' ),
+  $proxy_config_file        = params_lookup( 'proxy_config_file' ),
+  $proxy_template           = params_lookup( 'proxy_template' ),
+  $proxy_source             = params_lookup( 'proxy_source' ),
   ) inherits apt::params {
 
   $bool_source_dir_purge=any2bool($source_dir_purge)
@@ -243,9 +264,25 @@ class apt (
     default => $apt::update_source,
   }
 
-  $update_manage_file_content = $apt::update_template ? {
+  $update_manage_content = $apt::update_source ? {
     ''      => undef,
     default => template($apt::update_template),
+  }
+
+  ### Proxy
+  $proxy_manage_file = $apt::proxy ? {
+    ''      => false,
+    default => true,
+  }
+
+  $proxy_manage_file_source = $apt::proxy_source ? {
+    ''      => undef,
+    default => $apt::proxy_source,
+  }
+
+  $proxy_manage_file_content = $apt::proxy_source ? {
+    ''      => undef,
+    default => template($apt::proxy_template),
   }
 
   ### Managed resources
@@ -288,9 +325,24 @@ class apt (
     group   => $apt::config_file_group,
     require => Package['apt-update'],
     source  => $apt::update_manage_file_source,
-    content => $apt::update_manage_file_content,
+    content => $apt::update_manage_content,
     replace => $apt::manage_file_replace,
     audit   => $apt::manage_audit,
+  }
+
+  if $apt::proxy_manage_file {
+    file { 'apt-proxy.conf':
+      ensure  => file,
+      path    => $apt::proxy_config_file,
+      mode    => $apt::config_file_mode,
+      owner   => $apt::config_file_owner,
+      group   => $apt::config_file_group,
+      require => Package['apt'],
+      source  => $apt::proxy_manage_file_source,
+      content => $apt::proxy_manage_file_content,
+      replace => $apt::manage_file_replace,
+      audit   => $apt::manage_audit,
+    }
   }
 
   # The whole apt configuration directory can be recursively overriden

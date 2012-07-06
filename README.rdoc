@@ -78,7 +78,7 @@ This will generate somethink like 'deb-src http://it.archive.ubuntu.com/ubuntu/ 
           update_present => true,
         }
 
-* Set task recurrence. Here we want to proceed a apt-get update each day, download package each day, upgrade each 2 days and apt-get autoclean each 4 days. 
+* Set task recurrence. Here we want to proceed a apt-get update each day, download package each day, upgrade each 2 days and apt-get autoclean each 4 days.
 
         class { "apt":
           update_present           => true,
@@ -98,6 +98,36 @@ This will generate somethink like 'deb-src http://it.archive.ubuntu.com/ubuntu/ 
 
         ...
         update_source => [ "puppet:///modules/example42/apt/update.cfg-${hostname}" , "puppet:///modules/example42/apt/update.cfg"],
+        ...
+
+== USAGE - Apt proxy
+
+* Use a proxy (here http://apt-cache02.example.com:3142)
+
+        class { 'apt':
+          proxy => 'http://apt-cache02.example.com:3142',
+        }
+
+* Use my own proxy template
+
+        class { 'apt':
+          proxy          => 'http://apt-cache02.example.com:3142',
+          proxy_template => 'my/template.erb',
+        }
+
+* Use my own proxy source config file
+
+        ...
+          proxy_source => [
+            'puppet:///modules/lab42/apt/proxy.conf-${hostname}',
+            'puppet:///modules/lab42/apt/proxy.conf',
+          ],
+        ...
+
+* Change default proxy config file (default are /etc/apt/apt.conf.d/02proxy)
+
+        ...
+          proxy_config_file => '/etc/apt/apt.conf.d/the-proxy.conf',
         ...
 
 == USAGE - Apt update
