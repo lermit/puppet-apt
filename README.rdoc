@@ -124,7 +124,7 @@ This will generate somethink like 'deb-src http://it.archive.ubuntu.com/ubuntu/ 
           ],
         ...
 
-* Change default proxy config file (default are /etc/apt/apt.conf.d/02proxy)
+* Change default proxy config file (default are /etc/apt/apt.conf.d/01proxy)
 
         ...
           proxy_config_file => '/etc/apt/apt.conf.d/the-proxy.conf',

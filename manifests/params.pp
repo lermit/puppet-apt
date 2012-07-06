@@ -33,8 +33,8 @@ class apt::params {
 
   ### APT Proxying
   $proxy = ''
-  $proxy_config_file = '/etc/apt/apt.conf.d/02proxy'
-  $proxy_template = 'apt/02proxy'
+  $proxy_config_file = '/etc/apt/apt.conf.d/01proxy'
+  $proxy_template = 'apt/01proxy.erb'
   $proxy_source = ''
 
   ### Application related parameters

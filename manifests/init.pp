@@ -13,7 +13,7 @@
 #
 # [*proxy_config_file*]
 #   File where configuration will be stored
-#   (default /etc/apt/apt.conf.d/02proxy)
+#   (default /etc/apt/apt.conf.d/01proxy)
 #
 # [*proxy_template*]
 #   If you want to overide defaut template set this one here
