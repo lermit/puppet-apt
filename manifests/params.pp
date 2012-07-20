@@ -21,8 +21,15 @@ class apt::params {
   $update_periodic_download = 1
   $update_periodic_upgrade = 1
   $update_periodic_clean = 7
+  $update_allowed_origins = [ 'stable',  '${distro_codename}-security' ]
+  $update_package_blacklist = []
+  $update_mail = ''
+  $update_autoreboot = ''
+  $update_bw_limit = ''
   $update_template = 'apt/02periodic.erb'
   $update_source = ''
+  $update_upgrade_template = 'apt/50unattended-upgrades.erb'
+  $update_upgrade_source = ''
 
   $update_package = $::operatingsystem ? {
     default => 'unattended-upgrades',

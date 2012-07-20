@@ -145,9 +145,30 @@
 # [*update_periodic_clean*]
 #   Do "apt-get autoclean" every n-days (0=disable)
 #
+# [*update_allowed_origins*]
+#   Allowed origins.
+#
+# [*update_package_blacklist*]
+#   Package list to not auto upgrade
+#
+# [*update_mail*]
+#   Email address to contact on auto upgrade
+#
+# [*update_remove_unused_dependencies*]
+#   Do automatic removal of new unused dependencies after the upgrade
+#   (equivalent to apt-get autoremove)
+#
+# [update_autoreboot*]
+#   Automatically reboot *WITHOUT CONFIRMATION* if a
+#   the file /var/run/reboot-required is found after the upgrade
+#
+# [*update_bw_limit*]
+#   Use apt bandwidth limit feature.
+#   Speed is in kb/sec
+#
 # [*update_template*]
-#   Sets the path to the template to use as content for unattended upgrade
-#   configuration file
+#   Sets the path to the template to use as content for periodic update
+#   configuration file. (/etc/apt/apt.conf.d/02periodic)
 #   If defined, unattended upgrade main config file has:
 #   content => content("$template")
 #   Note update_source and update_template parameters are mutually exclusive:
@@ -155,11 +176,29 @@
 #   Can be defined also by the (top scope) variable $apt_update_template
 #
 # [*update_source*]
-#   Sets the content of source parameter for unattended upgrade configuration
-#   file
+#   Sets the content of source parameter for periodic update configuration
+#   file. (/etc/apt/apt.conf.d/02periodic)
 #   If defined, unattended upgrade config file will have the param:
 #   source => $source
 #   Can be defined also by the (top scope) variable $apt_update_source
+#
+# [*update_upgrade_template*]
+#   Sets the path to the template to use as content for unattended upgrade
+#   configuration file. (/etc/apt/apt.conf.d/50unattended-upgrades)
+#   If defined, unattended upgrade main config file has:
+#   content => content("$template")
+#   Note update_upgrade_source and update_upgrade_template parameters are
+#   mutually exclusive: don't use both
+#   Can be defined also by the (top scope) variable $apt_update_upgrade_template
+#
+# [*update_source*]
+#   Sets the content of source parameter for unattended upgrade configuration
+#   file. (/etc/apt/apt.conf.d/50unattended-upgrades)
+#   If defined, unattended upgrade config file will have the param:
+#   source => $source
+#   Note update_upgrade_source and update_upgrade_template parameters are
+#   mutually exclusive: don't use both
+#   Can be defined also by the (top scope) variable $apt_update_upgrade_source
 #
 # == Examples
 #
@@ -202,8 +241,15 @@ class apt (
   $update_periodic_download = params_lookup( 'update_periodic_download' ),
   $update_periodic_upgrade  = params_lookup( 'update_periodic_upgrade' ),
   $update_periodic_clean    = params_lookup( 'update_periodic_clean' ),
+  $update_allowed_origins   = params_lookup( 'update_allowed_origins'),
+  $update_package_blacklist = params_lookup( 'update_package_blacklist'),
+  $update_mail              = params_lookup( 'update_mail'),
+  $update_autoreboot        = params_lookup( 'update_autoreboot'),
+  $update_bw_limit          = params_lookup( 'update_bw_limit'),
   $update_template          = params_lookup( 'update_template' ),
   $update_source            = params_lookup( 'update_source' ),
+  $update_upgrade_template  = params_lookup( 'update_upgrade_template'),
+  $update_upgrade_source    = params_lookup( 'update_upgrade_source'),
   $proxy                    = params_lookup( 'proxy' ),
   $proxy_config_file        = params_lookup( 'proxy_config_file' ),
   $proxy_template           = params_lookup( 'proxy_template' ),
@@ -216,6 +262,7 @@ class apt (
   $bool_puppi=any2bool($puppi)
   $bool_debug=any2bool($debug)
   $bool_audit_only=any2bool($audit_only)
+  $bool_update_reboot=any2bool($update_autoreboot)
 
   ### Definition of some variables used in the module
   $manage_package = $apt::bool_absent ? {
@@ -267,6 +314,16 @@ class apt (
   $update_manage_content = $apt::update_template? {
     ''      => undef,
     default => template($apt::update_template),
+  }
+
+  $update_upgrade_manage_file_source = $apt::update_upgrade_source ? {
+    ''      => undef,
+    default => $apt::update_upgrade_source,
+  }
+
+  $update_upgrade_manage_file_content = $apt::update_upgrade_template ? {
+    ''      => undef,
+    default => template($apt::update_upgrade_template),
   }
 
   ### Proxy
@@ -326,6 +383,19 @@ class apt (
     require => Package['apt-update'],
     source  => $apt::update_manage_file_source,
     content => $apt::update_manage_content,
+    replace => $apt::manage_file_replace,
+    audit   => $apt::manage_audit,
+  }
+
+  file { 'apt-upgrade.conf':
+    ensure  => $apt::update_manage_file,
+    path    => $apt::update_config_file,
+    mode    => $apt::config_file_mode,
+    owner   => $apt::config_file_owner,
+    group   => $apt::config_file_group,
+    require => Package['apt-update'],
+    source  => $apt::update_upgrade_manage_file_source,
+    content => $apt::update_upgrade_manage_file_content,
     replace => $apt::manage_file_replace,
     audit   => $apt::manage_audit,
   }
