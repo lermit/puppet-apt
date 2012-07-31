@@ -67,6 +67,23 @@
 #   Set to 'true' to remove package(s) installed by module
 #   Can be defined also by the (top scope) variable $apt_absent
 #
+# [*monitor*]
+#   Set to 'true' to enable monitoring of the services provided by the module
+#   Can be defined also by the (top scope) variables $mysql_monitor
+#   and $monitor
+#
+# [*monitor_tool*]
+#   Define which monitor tools (ad defined in Example42 monitor module)
+#   you want to use for mysql checks
+#   Can be defined also by the (top scope) variables $mysql_monitor_tool
+#   and $monitor_tool
+#
+# [*monitor_target*]
+#   The Ip address or hostname to use as a target for monitoring tools.
+#   Default is the fact $ipaddress
+#   Can be defined also by the (top scope) variables $mysql_monitor_target
+#   and $monitor_target
+#
 # [*puppi*]
 #   Set to 'true' to enable creation of module data files that are used by puppi
 #   Can be defined also by the (top scope) variables $apt_puppi and $puppi
@@ -213,6 +230,7 @@
 #   Romain THERRAT <romain42@gmail.com/>
 #
 class apt (
+<<<<<<< Updated upstream
   $my_class                   = params_lookup( 'my_class' ),
   $source                     = params_lookup( 'source' ),
   $source_dir                 = params_lookup( 'source_dir' ),
@@ -221,6 +239,9 @@ class apt (
   $options                    = params_lookup( 'options' ),
   $version                    = params_lookup( 'version' ),
   $absent                     = params_lookup( 'absent' ),
+  $monitor                  = params_lookup( 'monitor', 'global' ),
+  $monitor_tool             = params_lookup( 'monitor_tool', 'global' ),
+  $monitor_target           = params_lookup( 'monitor_target' ),
   $puppi                      = params_lookup( 'puppi' , 'global' ),
   $puppi_helper               = params_lookup( 'puppi_helper' , 'global' ),
   $debug                      = params_lookup( 'debug' , 'global' ),
@@ -261,6 +282,7 @@ class apt (
   $bool_source_dir_purge=any2bool($source_dir_purge)
   $bool_absent=any2bool($absent)
   $bool_update_present=any2bool($update_present)
+  $bool_monitor=any2bool($monitor)
   $bool_puppi=any2bool($puppi)
   $bool_debug=any2bool($debug)
   $bool_audit_only=any2bool($audit_only)
@@ -290,6 +312,12 @@ class apt (
   $manage_file_source = $apt::source ? {
     ''        => undef,
     default   => $apt::source,
+  }
+
+  if $apt::bool_absent == true {
+    $manage_monitor = false
+  } else {
+    $manage_monitor = true
   }
 
   $manage_file_content = $apt::template ? {
@@ -456,6 +484,13 @@ class apt (
     }
   }
 
+  ### Service monitoring, if enabled ( monitor => true )
+  if $mysql::bool_monitor == true {
+    monitor::apt { 'apt_update':
+      tool     => $mysql::monitor_tool,
+      enable   => $mysql::manage_monitor,
+    }
+  }
 
   ### Debugging, if enabled ( debug => true )
   if $apt::bool_debug == true {
