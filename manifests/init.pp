@@ -230,7 +230,6 @@
 #   Romain THERRAT <romain42@gmail.com/>
 #
 class apt (
-<<<<<<< Updated upstream
   $my_class                   = params_lookup( 'my_class' ),
   $source                     = params_lookup( 'source' ),
   $source_dir                 = params_lookup( 'source_dir' ),
