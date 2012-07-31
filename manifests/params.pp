@@ -34,8 +34,13 @@ class apt::params {
   $update_package = $::operatingsystem ? {
     default => 'unattended-upgrades',
   }
+
   $update_config_file = $::operatingsystem ? {
     default => '/etc/apt/apt.conf.d/02periodic',
+  }
+
+  $update_upgrade_config_file = $::operatingsystem ? {
+    default => '/etc/apt/apt.conf.d/50unattended-upgrades',
   }
 
   ### APT Proxying
