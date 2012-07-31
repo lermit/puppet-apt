@@ -69,19 +69,19 @@
 #
 # [*monitor*]
 #   Set to 'true' to enable monitoring of the services provided by the module
-#   Can be defined also by the (top scope) variables $mysql_monitor
+#   Can be defined also by the (top scope) variables $apt_monitor
 #   and $monitor
 #
 # [*monitor_tool*]
 #   Define which monitor tools (ad defined in Example42 monitor module)
-#   you want to use for mysql checks
-#   Can be defined also by the (top scope) variables $mysql_monitor_tool
+#   you want to use for apt checks
+#   Can be defined also by the (top scope) variables $apt_monitor_tool
 #   and $monitor_tool
 #
 # [*monitor_target*]
 #   The Ip address or hostname to use as a target for monitoring tools.
 #   Default is the fact $ipaddress
-#   Can be defined also by the (top scope) variables $mysql_monitor_target
+#   Can be defined also by the (top scope) variables $apt_monitor_target
 #   and $monitor_target
 #
 # [*puppi*]
@@ -484,10 +484,10 @@ class apt (
   }
 
   ### Service monitoring, if enabled ( monitor => true )
-  if $mysql::bool_monitor == true {
+  if $apt::bool_monitor == true {
     monitor::apt { 'apt_update':
-      tool     => $mysql::monitor_tool,
-      enable   => $mysql::manage_monitor,
+      tool     => $apt::monitor_tool,
+      enable   => $apt::manage_monitor,
     }
   }
 
