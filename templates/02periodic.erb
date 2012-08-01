@@ -15,3 +15,8 @@ APT::Periodic::Unattended-Upgrade "<%= scope.lookupvar('apt::update_periodic_upg
 
 // Do "apt-get autoclean" every n-days (0=disable)
 APT::Periodic::AutocleanInterval "<%= scope.lookupvar('apt::update_periodic_clean') %>";
+
+// Auto remove package
+APT::Periodic::MaxAge "<%= scope.lookupvar('apt::update_periodic_max_age') %>";
+APT::Archives::MinAge "<%= scope.lookupvar('apt::update_periodic_min_age') %>";
+APT::Archives::MaxSize "<%= scope.lookupvar('apt::update_periodic_max_size') %>";

@@ -88,6 +88,14 @@ This will generate somethink like 'deb-src http://it.archive.ubuntu.com/ubuntu/ 
           update_periodic_clean    => 4,
         }
 
+* Manage archive retention. Here we keep archive for 7 days with a minimum of 2 days. The total size of the archive is up to 700MB.
+
+        ...
+        update_periodic_max_age  => 7,
+        update_periodic_min_age  => 2,
+        update_periodic_max_size => 700,
+        ...
+
 * Specify own template.
 
         ...

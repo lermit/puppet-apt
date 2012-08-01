@@ -162,6 +162,21 @@
 # [*update_periodic_clean*]
 #   Do "apt-get autoclean" every n-days (0=disable)
 #
+# [*update_periodic_max_age*]
+#   Set maximum allowed age of a cache package file. If a cache
+#   package file is older it is deleted (0=disable)
+#
+# [*update_periodic_min_age*]
+#   Set minimum age of a package file. If a file is younger it
+#   will not be deleted (0=disable). Usefull to prevent races
+#   and to keep backups of the packages for emergency.
+#
+# [*update_periodic_max_size*]
+#   Set maximum size of the cache in MB (0=disable). If the cache
+#   is bigger, cached package files are deleted until the size
+#   requirement is met (the biggest packages will be deleted
+#   first).
+#
 # [*update_allowed_origins*]
 #   Allowed origins.
 #
@@ -261,6 +276,9 @@ class apt (
   $update_periodic_download   = params_lookup( 'update_periodic_download' ),
   $update_periodic_upgrade    = params_lookup( 'update_periodic_upgrade' ),
   $update_periodic_clean      = params_lookup( 'update_periodic_clean' ),
+  $update_periodic_max_age    = params_lookup( 'update_periodic_max_age'),
+  $update_periodic_min_age    = params_lookup( 'update_periodic_min_age'),
+  $update_periodic_max_size   = params_lookup( 'update_periodic_max_size'),
   $update_allowed_origins     = params_lookup( 'update_allowed_origins'),
   $update_package_blacklist   = params_lookup( 'update_package_blacklist'),
   $update_mail                = params_lookup( 'update_mail'),

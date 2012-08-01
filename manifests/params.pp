@@ -21,6 +21,9 @@ class apt::params {
   $update_periodic_download = 1
   $update_periodic_upgrade = 1
   $update_periodic_clean = 7
+  $update_periodic_max_age = 0
+  $update_periodic_min_age = 0
+  $update_periodic_max_size = 0
   $update_allowed_origins = [ 'stable',  '${distro_codename}-security' ]
   $update_package_blacklist = []
   $update_mail = ''
