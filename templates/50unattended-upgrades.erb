@@ -2,7 +2,7 @@
 // Automatically upgrade packages from these (origin, archive) pairs
 Unattended-Upgrade::Allowed-Origins {
 <% scope.lookupvar('apt::update_allowed_origins').each do |origin| %>
-  "${distro_id} <%= origin %>
+  "${distro_id} <%= origin %>";
 <% end %>
 };
 
@@ -27,8 +27,8 @@ Unattended-Upgrade::Mail "<%= scope.lookupvar("apt::update_mail") %>";
 // (equivalent to apt-get autoremove)
 //Unattended-Upgrade::Remove-Unused-Dependencies "false";
 
-// Automatically reboot *WITHOUT CONFIRMATION* if a 
-// the file /var/run/reboot-required is found after the upgrade 
+// Automatically reboot *WITHOUT CONFIRMATION* if a
+// the file /var/run/reboot-required is found after the upgrade
 //Unattended-Upgrade::Automatic-Reboot "false";
 
 
