@@ -502,12 +502,12 @@ class apt (
   }
 
   ### Service monitoring, if enabled ( monitor => true )
-  if $apt::bool_monitor == true {
-    monitor::apt { 'apt_update':
-      tool     => $apt::monitor_tool,
-      enable   => $apt::manage_monitor,
-    }
-  }
+#  if $apt::bool_monitor == true {
+#    monitor::apt { 'apt_update':
+#      tool     => $apt::monitor_tool,
+#      enable   => $apt::manage_monitor,
+#    }
+#  }
 
   ### Debugging, if enabled ( debug => true )
   if $apt::bool_debug == true {
